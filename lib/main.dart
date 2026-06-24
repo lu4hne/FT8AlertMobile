@@ -48,13 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('FT8Alert Companion'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          const AudioListTab(),
-          ScannerTab(onDownloaded: () => _onTabTapped(0)),
-        ],
-      ),
+      body: _currentIndex == 0 
+          ? const AudioListTab() 
+          : ScannerTab(onDownloaded: () => _onTabTapped(0)),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
@@ -268,6 +264,10 @@ class _ScannerTabState extends State<ScannerTab> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: MobileScanner(
+                controller: MobileScannerController(
+                  formats: const [BarcodeFormat.qrCode],
+                ),
+                fit: BoxFit.cover,
                 onDetect: _handleBarcode,
               ),
             ),
