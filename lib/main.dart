@@ -206,6 +206,21 @@ class ScannerTab extends StatefulWidget {
 class _ScannerTabState extends State<ScannerTab> {
   bool _isDownloading = false;
   String _status = 'Apunta al código QR en tu PC';
+  late final MobileScannerController _scannerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scannerController = MobileScannerController(
+      formats: const [BarcodeFormat.qrCode],
+    );
+  }
+
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleBarcode(BarcodeCapture capture) async {
     if (_isDownloading) return;
@@ -264,9 +279,7 @@ class _ScannerTabState extends State<ScannerTab> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: MobileScanner(
-                controller: MobileScannerController(
-                  formats: const [BarcodeFormat.qrCode],
-                ),
+                controller: _scannerController,
                 fit: BoxFit.cover,
                 onDetect: _handleBarcode,
               ),
