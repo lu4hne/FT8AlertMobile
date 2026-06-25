@@ -56,12 +56,45 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Acerca de FT8Alert Mobile'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Aplicación compañera para FT8Alert. Permite escanear códigos QR desde la PC para descargar y reproducir alertas de audio en tiempo sincronizado (NTP o local).'),
+            SizedBox(height: 16),
+            Text('Desarrollado por:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Maximiliano Duarte LU4HNE'),
+            Text('lu4hne@gmail.com'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('FT8Alert Companion $_version'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _showAboutDialog,
+            tooltip: 'Acerca de',
+          ),
+        ],
       ),
       body: _currentIndex == 0 
           ? const AudioListTab() 

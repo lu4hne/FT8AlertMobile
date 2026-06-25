@@ -41,33 +41,37 @@ class SyncPlayer {
     currentMode = PlaybackMode.syncNtp;
     _updateStatus('Sincronizando con NTP...');
 
+    DateTime myTime;
+    String syncType = 'NTP';
     try {
-      final DateTime myTime = await NTP.now();
-      final int second = myTime.second;
-      final int ms = myTime.millisecond;
-      
-      // Calculate ms into the current minute
-      final int currentMsInMinute = second * 1000 + ms;
-      
-      // FT8 slots are at 0, 15000, 30000, 45000 ms
-      const int slotDurationMs = 15000;
-      final int nextSlotMs = ((currentMsInMinute ~/ slotDurationMs) + 1) * slotDurationMs;
-      
-      final int waitTimeMs = nextSlotMs - currentMsInMinute;
-      final double waitSeconds = waitTimeMs / 1000.0;
-      
-      _updateStatus('Esperando ${waitSeconds.toStringAsFixed(1)}s (NTP)...');
-      
-      _ntpTimer = Timer(Duration(milliseconds: waitTimeMs), () {
-        if (currentMode == PlaybackMode.syncNtp) {
-          _updateStatus('Reproduciendo (NTP Sync)...');
-          _playFile(file);
-        }
-      });
+      myTime = await NTP.now();
     } catch (e) {
-      _updateStatus('Error NTP: $e');
-      currentMode = PlaybackMode.none;
+      _updateStatus('Fallo NTP. Usando reloj interno...');
+      myTime = DateTime.now();
+      syncType = 'Local';
     }
+
+    final int second = myTime.second;
+    final int ms = myTime.millisecond;
+    
+    // Calculate ms into the current minute
+    final int currentMsInMinute = second * 1000 + ms;
+    
+    // FT8 slots are at 0, 15000, 30000, 45000 ms
+    const int slotDurationMs = 15000;
+    final int nextSlotMs = ((currentMsInMinute ~/ slotDurationMs) + 1) * slotDurationMs;
+    
+    final int waitTimeMs = nextSlotMs - currentMsInMinute;
+    final double waitSeconds = waitTimeMs / 1000.0;
+    
+    _updateStatus('Esperando ${waitSeconds.toStringAsFixed(1)}s ($syncType)...');
+    
+    _ntpTimer = Timer(Duration(milliseconds: waitTimeMs), () {
+      if (currentMode == PlaybackMode.syncNtp) {
+        _updateStatus('Reproduciendo ($syncType Sync)...');
+        _playFile(file);
+      }
+    });
   }
 
   Future<void> playSyncMic(File file) async {
