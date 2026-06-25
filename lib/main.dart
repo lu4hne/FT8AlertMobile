@@ -211,9 +211,7 @@ class _ScannerTabState extends State<ScannerTab> {
   @override
   void initState() {
     super.initState();
-    _scannerController = MobileScannerController(
-      formats: const [BarcodeFormat.qrCode],
-    );
+    _scannerController = MobileScannerController();
   }
 
   @override
