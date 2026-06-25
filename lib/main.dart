@@ -222,14 +222,18 @@ class _AudioListTabState extends State<AudioListTab> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  _buildActionBtn(Icons.play_arrow, Colors.green, 'Normal', () => _syncPlayer.playAsync(file)),
-                                  _buildActionBtn(Icons.sync, Colors.orange, 'Sync NTP', () => _syncPlayer.playSyncNtp(file)),
-                                  _buildActionBtn(Icons.mic, Colors.purple, 'Micrófono', () => _syncPlayer.playSyncMic(file)),
-                                  _buildActionBtn(Icons.delete, Colors.red, 'Eliminar', () => _deleteAudio(file)),
-                                ],
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _buildActionBtn(Icons.play_arrow, Colors.green, 'Normal', () => _syncPlayer.playAsync(file)),
+                                    _buildActionBtn(Icons.sync, Colors.orange, 'Sync NTP', () => _syncPlayer.playSyncNtp(file)),
+                                    _buildActionBtn(Icons.satellite_alt, Colors.blue, 'Sync GPS', () => _syncPlayer.playSyncGps(file)),
+                                    _buildActionBtn(Icons.mic, Colors.purple, 'Micrófono', () => _syncPlayer.playSyncMic(file)),
+                                    _buildActionBtn(Icons.delete, Colors.red, 'Eliminar', () => _deleteAudio(file)),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
