@@ -33,6 +33,15 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
+    applicationVariants.all {
+        val variantVersion = versionName
+        outputs.all {
+            if (this is com.android.build.gradle.internal.api.ApkVariantOutputImpl) {
+                this.outputFileName = "FT8AlertMobile-v${variantVersion}.apk"
+            }
+        }
+    }
 }
 
 kotlin {
