@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'audio_manager.dart';
 import 'sync_player.dart';
 
@@ -34,6 +35,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = 'v${info.version}';
+    });
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -45,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FT8Alert Companion'),
+        title: Text('FT8Alert Companion $_version'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _currentIndex == 0 
@@ -111,6 +126,24 @@ class _AudioListTabState extends State<AudioListTab> {
     _loadAudios();
   }
 
+  Widget _buildActionBtn(IconData icon, Color color, String label, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // We call loadAudios in build in case the tab was hidden and now shown, 
@@ -154,34 +187,17 @@ class _AudioListTabState extends State<AudioListTab> {
                           title: Text(filename),
                           leading: const Icon(Icons.audiotrack, color: Colors.blue),
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.play_arrow),
-                                  color: Colors.green,
-                                  tooltip: 'Play (Async)',
-                                  onPressed: () => _syncPlayer.playAsync(file),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.sync),
-                                  color: Colors.orange,
-                                  tooltip: 'Play (Sync NTP)',
-                                  onPressed: () => _syncPlayer.playSyncNtp(file),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.mic),
-                                  color: Colors.purple,
-                                  tooltip: 'Play (Auto-Mic)',
-                                  onPressed: () => _syncPlayer.playSyncMic(file),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  color: Colors.red,
-                                  tooltip: 'Eliminar',
-                                  onPressed: () => _deleteAudio(file),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildActionBtn(Icons.play_arrow, Colors.green, 'Normal', () => _syncPlayer.playAsync(file)),
+                                  _buildActionBtn(Icons.sync, Colors.orange, 'Sync NTP', () => _syncPlayer.playSyncNtp(file)),
+                                  _buildActionBtn(Icons.mic, Colors.purple, 'Micrófono', () => _syncPlayer.playSyncMic(file)),
+                                  _buildActionBtn(Icons.delete, Colors.red, 'Eliminar', () => _deleteAudio(file)),
+                                ],
+                              ),
                             ),
                           ],
                         ),
