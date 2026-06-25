@@ -1,6 +1,6 @@
 # ft8alertmobile
 
-A new Flutter project.
+Sistema de reproduccion de llamados CQ para activaciones. Complemento de https://FT8Alert.app
 
 ## Getting Started
 
