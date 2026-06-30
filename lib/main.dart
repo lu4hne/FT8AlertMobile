@@ -280,7 +280,7 @@ class _ScannerTabState extends State<ScannerTab> {
     if (barcodes.isNotEmpty) {
       final String? qrCodeValue = barcodes.first.rawValue;
 
-      if (qrCodeValue != null && qrCodeValue.contains('/download_ft8_audio/')) {
+      if (qrCodeValue != null && (qrCodeValue.contains('/api/audio/') || qrCodeValue.contains('/download_ft8_audio/'))) {
         setState(() {
           _isDownloading = true;
           _status = 'Descargando audio...';
