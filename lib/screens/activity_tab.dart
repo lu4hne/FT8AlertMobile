@@ -208,29 +208,88 @@ class _ActivityTabState extends State<ActivityTab> {
     }
   }
 
-  Future<void> _downloadAudio(String type) async {
+  Future<void> _downloadMultiple(bool downloadFt8, bool downloadCw) async {
     if (_createdActivityId == null) return;
-    
     setState(() => _isLoading = true);
-    final url = apiService.getAudioUrl(_createdActivityId!, type);
-    
-    final file = await AudioManager.downloadAndSaveAudio(url);
+
+    bool anySuccess = false;
+
+    if (downloadFt8) {
+      final url = apiService.getAudioUrl(_createdActivityId!, 'ft8');
+      final file = await AudioManager.downloadAndSaveAudio(url);
+      if (file != null) anySuccess = true;
+    }
+
+    if (downloadCw) {
+      final url = apiService.getAudioUrl(_createdActivityId!, 'cw');
+      final file = await AudioManager.downloadAndSaveAudio(url);
+      if (file != null) anySuccess = true;
+    }
+
     setState(() => _isLoading = false);
-    
-    if (file != null) {
+
+    if (anySuccess) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Audio $type descargado exitosamente')),
+          const SnackBar(content: Text('Audios descargados exitosamente')),
         );
       }
       widget.onDownloaded();
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al descargar el audio $type')),
+          const SnackBar(content: Text('Error al descargar los audios')),
         );
       }
     }
+  }
+
+  Future<void> _showDownloadDialog() async {
+    bool downloadFt8 = true;
+    bool downloadCw = true;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Descargar Audios'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CheckboxListTile(
+                    title: const Text('FT8'),
+                    value: downloadFt8,
+                    onChanged: (val) => setStateDialog(() => downloadFt8 = val ?? false),
+                  ),
+                  CheckboxListTile(
+                    title: const Text('CW'),
+                    value: downloadCw,
+                    onChanged: (val) => setStateDialog(() => downloadCw = val ?? false),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (downloadFt8 || downloadCw) {
+                      _downloadMultiple(downloadFt8, downloadCw);
+                    }
+                  },
+                  child: const Text('Descargar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildUnauthenticated() {
@@ -278,14 +337,8 @@ class _ActivityTabState extends State<ActivityTab> {
                 children: [
                   ElevatedButton.icon(
                     icon: const Icon(Icons.download),
-                    label: const Text('Descargar FT8'),
-                    onPressed: () => _downloadAudio('ft8'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.download),
-                    label: const Text('Descargar CW'),
-                    onPressed: () => _downloadAudio('cw'),
+                    label: const Text('Descargar Audios'),
+                    onPressed: _showDownloadDialog,
                   ),
                 ],
               ),

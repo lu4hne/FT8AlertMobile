@@ -5,7 +5,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class ApiService {
   // Use 10.0.2.2 for Android emulator testing, or localhost / specific IP for real device
-  static const String baseUrl = 'http://192.168.100.43:8000/api/mobile';
+  static const String baseUrl = 'http://ft8alert.app:8000/api/mobile';
+
   
   final _storage = const FlutterSecureStorage();
   final GoogleSignIn _googleSignIn = GoogleSignIn(
