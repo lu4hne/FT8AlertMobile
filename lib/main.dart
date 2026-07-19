@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'audio_manager.dart';
 import 'sync_player.dart';
+import 'screens/activity_tab.dart';
 
 void main() {
   runApp(const FT8AlertMobileApp());
@@ -98,7 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _currentIndex == 0 
           ? const AudioListTab() 
-          : ScannerTab(onDownloaded: () => _onTabTapped(0)),
+          : _currentIndex == 1
+            ? ScannerTab(onDownloaded: () => _onTabTapped(0))
+            : ActivityTab(onDownloaded: () => _onTabTapped(0)),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
@@ -110,6 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.qr_code_scanner),
             label: 'Escáner QR',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: 'Actividad',
           ),
         ],
       ),
