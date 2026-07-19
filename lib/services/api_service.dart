@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class ApiService {
   // Use 10.0.2.2 for Android emulator testing, or localhost / specific IP for real device
-  static const String baseUrl = 'http://ft8alert.app:8000/api/mobile';
+  static const String baseUrl = 'https://ft8alert.app/api/mobile';
 
   
   final _storage = const FlutterSecureStorage();
@@ -28,12 +28,12 @@ class ApiService {
   Future<bool> login() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return false;
+      if (googleUser == null) throw Exception('Google SignIn cancelado');
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
-      if (idToken == null) return false;
+      if (idToken == null) throw Exception('No se recibió ID Token de Google');
 
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
@@ -48,11 +48,11 @@ class ApiService {
         await _storage.write(key: 'jwt_token', value: _jwtToken);
         await _storage.write(key: 'profile_complete', value: _isProfileComplete.toString());
         return true;
+      } else {
+        throw Exception('Error del servidor: HTTP ${response.statusCode} - ${response.body}');
       }
-      return false;
     } catch (e) {
-      print('Login error: $e');
-      return false;
+      throw Exception('Fallo el login: $e');
     }
   }
 

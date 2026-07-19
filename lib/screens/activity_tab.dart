@@ -142,15 +142,23 @@ class _ActivityTabState extends State<ActivityTab> {
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
-    final success = await apiService.login();
-    if (success) {
-      _loadMetadata();
-    } else {
-      setState(() => _isLoading = false);
+    try {
+      final success = await apiService.login();
+      if (success) {
+        _checkLoginAndLoadData();
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al iniciar sesión con Google')),
+          SnackBar(
+            content: Text(e.toString()),
+            duration: const Duration(seconds: 10),
+          ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
