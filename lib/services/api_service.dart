@@ -26,6 +26,10 @@ class ApiService {
   bool get isProfileComplete => _isProfileComplete;
 
   Future<bool> login() async {
+    return loginWithGoogle();
+  }
+
+  Future<bool> loginWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) throw Exception('Google SignIn cancelado');
@@ -35,10 +39,39 @@ class ApiService {
 
       if (idToken == null) throw Exception('No se recibió ID Token de Google');
 
+      return await loginWithProvider(
+        'google',
+        idToken: idToken,
+        email: googleUser.email,
+        firstName: googleUser.displayName,
+      );
+    } catch (e) {
+      throw Exception('Fallo el login con Google: $e');
+    }
+  }
+
+  Future<bool> loginWithProvider(
+    String provider, {
+    String? token,
+    String? idToken,
+    String? email,
+    String? userId,
+    String? firstName,
+    String? lastName,
+  }) async {
+    try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$baseUrl/login/$provider'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'id_token': idToken}),
+        body: jsonEncode({
+          'provider': provider,
+          'token': token,
+          'id_token': idToken,
+          'email': email,
+          'user_id': userId,
+          'first_name': firstName,
+          'last_name': lastName,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -52,8 +85,37 @@ class ApiService {
         throw Exception('Error del servidor: HTTP ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      throw Exception('Fallo el login: $e');
+      throw Exception('Fallo el login con $provider: $e');
     }
+  }
+
+  Future<bool> loginWithApple({
+    required String userId,
+    String? email,
+    String? identityToken,
+    String? firstName,
+    String? lastName,
+  }) async {
+    return loginWithProvider(
+      'apple',
+      userId: userId,
+      token: identityToken,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    );
+  }
+
+  Future<bool> loginWithMicrosoft(String accessToken) async {
+    return loginWithProvider('microsoft', token: accessToken);
+  }
+
+  Future<bool> loginWithGitHub(String accessToken) async {
+    return loginWithProvider('github', token: accessToken);
+  }
+
+  Future<bool> loginWithFacebook(String accessToken) async {
+    return loginWithProvider('facebook', token: accessToken);
   }
 
   Future<void> logout() async {
